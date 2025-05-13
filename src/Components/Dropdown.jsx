@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useReducer, useState } from "react";
+import MenuItem from "./MenuItem";
 
 const init = [];
 
@@ -47,12 +48,13 @@ const Dropdown = (props) => {
     }
   };
 
+  // debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchText) {
         getApiData(searchText);
       }
-    }, 2000);
+    }, 1000);
     return () => clearTimeout(timer);
   }, [searchText]);
 
@@ -77,28 +79,22 @@ const Dropdown = (props) => {
                 </div>,
               ]
             : []),
-          optionsData.map((option, index) => (
-            <div key={index}>
-              <input
-                type="checkbox"
-                value={option[optionKey]}
-                onChange={(e) =>
-                  e.target.checked
-                    ? dispatch({ type: "add", value: option })
-                    : dispatch({ type: "remove", value: option })
-                }
-                checked={value.some(
-                  (item) => item[optionKey] === option[optionKey]
-                )}
-              />
-              <label>{option[optionLabel]}</label>
-            </div>
+          optionsData.map((option) => (
+            <MenuItem
+              key={option[optionKey]}
+              option={option}
+              optionKey={optionKey}
+              optionLabel={optionLabel}
+              value={value}
+              dispatch={dispatch}
+            />
           )),
         ]}
       </div>
     );
   }, [isMultiSelect, value, optionsData, optionKey, optionLabel]);
 
+  // reset on multi select change
   useEffect(() => {
     dispatch({ type: "reset" });
     setSearchText("");
@@ -113,6 +109,7 @@ const Dropdown = (props) => {
         onChange={(e) => {
           setSearchText(e.target.value);
         }}
+        placeholder="Search"
       />
       {status === "success" ? (
         Menu
